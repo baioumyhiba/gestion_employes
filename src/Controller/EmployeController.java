@@ -1,29 +1,31 @@
 package Controller;
 
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.awt.event.ActionListener;
+import javax.swing.*;
 
-import javax.swing.JOptionPane;
-
+import Model.Employe;
 import Model.EmployeModel;
 import Model.Poste;
 import Model.Rol;
-import View.EmployeView;
+import View.MainView;
 
 public class EmployeController {
  
-	private EmployeView view;
+	private MainView view;
 	private EmployeModel model;
 	
-	public EmployeController(EmployeView view, EmployeModel model) {
+	public EmployeController(MainView view, EmployeModel model) {
 		this.view = view;
 		this.model = model;
 		
-		this.view.ajou.addActionListener(new ActionListener(){
+		this.view.ajouterE.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int id = (int) view.idSpinner.getValue();
+				
+				
 				String nom = view.saisie.getText();
 				String prenom=view.saisie1.getText();
 				String email=view.saisie2.getText();
@@ -31,19 +33,18 @@ public class EmployeController {
 				double salaire=Double.parseDouble(view.saisie4.getText());
 				Rol role=(Rol) view.choix.getSelectedItem();
 				Poste poste=(Poste) view.choix2.getSelectedItem();
-				model.addEmploye(id, nom, prenom, email, telephone, salaire, role, poste);
-				Object[] row = {id,nom, prenom,email, telephone, salaire, role, poste};
-                System.out.println(id+nom+prenom+email+telephone+salaire+role+poste);
+				model.add(nom, prenom, email, telephone, salaire, role, poste);
+				Object[] row = {nom, prenom,email, telephone, salaire, role, poste};
+                System.out.println(nom+prenom+email+telephone+salaire+role+poste);
                 view.model.addRow(row);
 			}
 		});
-		
-		this.view.modif.addActionListener(new ActionListener() {
+		this.view.modifierE.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					int selectedRow = view.table.getSelectedRow();
 		if(selectedRow != -1) {
-			int id = (int) view.idSpinner.getValue();
+			int id = (int) view.table.getValueAt(selectedRow, 0);
             String nom = view.saisie.getText();
             String prenom = view.saisie1.getText();
             String email = view.saisie2.getText();
@@ -56,7 +57,7 @@ public class EmployeController {
             }
             Rol role = (Rol) view.choix.getSelectedItem();
             Poste poste = (Poste) view.choix2.getSelectedItem();
-            model.updateEmploye(id,nom, prenom, email, telephone, salaire, role, poste);
+            model.update(nom, prenom, email, telephone, salaire, role, poste);
             view.model.setValueAt(id,selectedRow,0);
             view.model.setValueAt(nom, selectedRow, 1);
             view.model.setValueAt(prenom, selectedRow, 2);
@@ -72,13 +73,13 @@ public class EmployeController {
 				
 	});
 
-		this.view.supp.addActionListener(new ActionListener() {
+		this.view.supprimerE.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int selectedRow = view.table.getSelectedRow();
 				if (selectedRow != -1) {
                     int id = (int) view.model.getValueAt(selectedRow, 0);
-                    model.deleteEmploye(id);
+                    model.delete(id);
                     view.model.removeRow(selectedRow);
                 } else {
                     JOptionPane.showMessageDialog(view, "Veuillez sélectionner une ligne à supprimer.");
@@ -86,14 +87,14 @@ public class EmployeController {
 			}
 		});
 		
-		this.view.aff.addActionListener(new ActionListener() {
+		this.view.afficherE.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Object[][] Temployes=model.displayEmployes();
+				 ArrayList<Object[]> employes = model.display();
 				view.model.setRowCount(0);
-				for(Object[] employe :Temployes) {
-					view.model.addRow(employe);
+				for(Object[] emp :employes) {
+					view.model.addRow(emp);
 				}
 				}
-		});
+			});
 }}

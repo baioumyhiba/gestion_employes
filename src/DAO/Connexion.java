@@ -1,8 +1,6 @@
 package DAO;
+import java.sql.*;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class Connexion {
 
@@ -19,11 +17,13 @@ public class Connexion {
 				Class.forName("com.mysql.cj.jdbc.Driver");
 				
 				conn = DriverManager.getConnection(URL, USER, PASSWORD);
+				
 			}catch(ClassNotFoundException | SQLException e) {
 				
 				e.printStackTrace();
 				
 				throw new RuntimeException("Error lors de la connexion");
+				
 			}
 		}
 		return conn;

@@ -1,21 +1,15 @@
 package DAO;
 
-import java.sql.PreparedStatement;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.management.relation.Role;
-import javax.swing.JOptionPane;
+import java.sql.*;
+import java.util.*;
+import javax.swing.*;
 
 import Model.Employe;
 import Model.Poste;
 import Model.Rol;
 
 
-public class EmployeDAOImpl implements EmployeDAOI{
+public class EmployeDAOImpl implements GenericDAOI<Employe>{
 
 	private Connexion conn;
 	
@@ -28,17 +22,58 @@ public class EmployeDAOImpl implements EmployeDAOI{
 	//implementation des fonctions
 	
 	@Override
-	public void addEmploye(Employe employe) {
-		String sql = "INSERT INTO Employe (id, nom, prenom, email, telephone, salaire, rol, poste) VALUES (?,?,?,?,?,?,?,?)";
+    public Employe findById(int id) {
+        String sql = "SELECT * FROM Employe WHERE employe_id = ?";
+        
+        try (PreparedStatement stmt = conn.getConnexion().prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new Employe(
+                    rs.getInt("employe_id"),
+                    rs.getString("nom"),
+                    rs.getString("prenom"),
+                    rs.getString("email"),
+                    rs.getString("telephone"),
+                    rs.getDouble("salaire"),
+                    Rol.valueOf(rs.getString("rol")),
+					Poste.valueOf(rs.getString("poste"))
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;// Retourne null si l'employé n'est pas trouvé
+	}
+	
+	 public int findByName(String name) {
+	        String sql = "SELECT employe_id FROM Employe WHERE nom = ?";
+	        
+	        try (PreparedStatement stmt = conn.getConnexion().prepareStatement(sql)) {
+	            stmt.setString(1, name);
+	            ResultSet rs = stmt.executeQuery();
+	            if (rs.next()) {
+	                return rs.getInt("employe_id");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	        return -1;// Retourne null si l'employé n'est pas trouvé
+		}
+	 
+	 
+	@Override
+	public void add(Employe employe) {
+		String sql = "INSERT INTO Employe (nom, prenom, email, telephone, salaire, rol, poste, holidayBalance) VALUES (?,?,?,?,?,?,?,?)";
 		try(PreparedStatement stmt = conn.getConnexion().prepareStatement(sql)){
-			stmt.setInt(1, employe.getId());
-			stmt.setString(2, employe.getNom());
-			stmt.setString(3, employe.getPrenom());
-			stmt.setString(4, employe.getEmail());
-			stmt.setString(5, employe.getTelephone());
-			stmt.setDouble(6, employe.getSalaire());
-			stmt.setString(7, employe.getRole());
-			stmt.setString(8, employe.getPoste());
+			stmt.setString(1, employe.getNom());
+			stmt.setString(2, employe.getPrenom());
+			stmt.setString(3, employe.getEmail());
+			stmt.setString(4, employe.getTelephone());
+			stmt.setDouble(5, employe.getSalaire());
+			stmt.setString(6, employe.getRole());
+			stmt.setString(7, employe.getPoste());
+			stmt.setInt(8, 25);
 			stmt.executeUpdate();
         JOptionPane.showMessageDialog(null, "Employe ajouté avec succées!", "Confirmation", JOptionPane.INFORMATION_MESSAGE);
 		}catch(SQLException e) {
@@ -49,8 +84,8 @@ public class EmployeDAOImpl implements EmployeDAOI{
 		}
 	
 	@Override
-	public void updateEmploye(Employe employe) {
-		String sql = "UPDATE Employe SET nom = ?, prenom = ?, email = ?, telephone = ?, salaire = ?, rol = ?, poste = ? WHERE id = ?";
+	public void update(Employe employe) {
+		String sql = "UPDATE Employe SET nom = ?, prenom = ?, email = ?, telephone = ?, salaire = ?, rol = ?, poste = ? WHERE employe_id = ?";
 		 try (PreparedStatement stmt = conn.getConnexion().prepareStatement(sql)) {
 	            stmt.setString(1, employe.getNom());
 	            stmt.setString(2, employe.getPrenom());
@@ -73,8 +108,8 @@ public class EmployeDAOImpl implements EmployeDAOI{
 	}
 	
 	@Override
-	public void deleteEmploye(int id) {
-		String sql = "DELETE FROM Employe WHERE id = ?";
+	public void delete(int id) {
+		String sql = "DELETE FROM Employe WHERE employe_id = ?";
 		try(PreparedStatement stmt = conn.getConnexion().prepareStatement(sql)){
 			stmt.setInt(1, id);
 			int rowsAffected = stmt.executeUpdate();
@@ -89,14 +124,14 @@ public class EmployeDAOImpl implements EmployeDAOI{
 		}
 	}
 	
-	public List<Employe>displayEmployes(){
+	public List<Employe>display(){
 		List<Employe>employe = new ArrayList<>();
 		String sql = "SELECT * FROM Employe";
 		try(PreparedStatement stmt = conn.getConnexion().prepareStatement(sql);
 				ResultSet rslt = stmt.executeQuery()){
 					while(rslt.next()) {
 						employe.add(new Employe(
-								rslt.getInt("id"),
+								rslt.getInt("employe_id"),
 								rslt.getString("nom"),
 								rslt.getString("prenom"),
 								rslt.getString("email"),
