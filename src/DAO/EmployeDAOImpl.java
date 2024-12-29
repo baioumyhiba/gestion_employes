@@ -1,5 +1,11 @@
 package DAO;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 import javax.swing.*;
@@ -9,7 +15,7 @@ import Model.Poste;
 import Model.Rol;
 
 
-public class EmployeDAOImpl implements GenericDAOI<Employe>{
+public class EmployeDAOImpl implements GenericDAOI<Employe>, DataImportExport<Employe> {
 
 	private Connexion conn;
 	
@@ -148,5 +154,77 @@ public class EmployeDAOImpl implements GenericDAOI<Employe>{
 				}
 				return employe;
 	}
+	
+	@Override
+	public void importData(String filePath) {
+		String query = "INSERT INTO Employe (nom, prenom, email, telephone, salaire, rol, poste, holiday) VALUES (?,?,?,?,?,?,?,?)";
+		try(BufferedReader reader = new BufferedReader(new FileReader(filePath));
+			PreparedStatement pstmt = conn.getConnexion().prepareStatement(query)){
+			
+			String line = reader.readLine();
+			while((line = reader.readLine()) != null) {
+				String[] data = line.split(",");
+				if(data.length == 5) {
+					pstmt.setString(1, data[0].trim());
+					pstmt.setString(2, data[1].trim());
+					pstmt.setString(3, data[2].trim());
+					pstmt.setString(4, data[3].trim());
+					pstmt.setString(5, data[4].trim());
+					pstmt.setString(6, data[5].trim());
+					pstmt.setString(7, data[6].trim());
+					pstmt.addBatch();
+				}
+			}
+			pstmt.executeBatch();
+			System.out.println("Employees imported successfully !");
+		}catch(IOException | SQLException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
+	@Override
+	public void exportData(String fileName, List<Employe> data) throws IOException {
+    
+		try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileName)))
+		{
+			writer.write("nom, prenom, email, telephone, salaire, rol, poste, holiday");
+			writer.newLine();
+			
+			for(Employe employe : data) {
+				String line = String.format("%s,%s,%s,%s,%s,%s,%.2f",
+						employe.getNom(),
+						employe.getPrenom(),
+						employe.getEmail(),
+						employe.getTelephone(),
+						employe.getRole(),
+						employe.getPoste(),
+						employe.getUsedBalance()
+						);
+				writer.write(line);
+				writer.newLine();
+			}
+		}
+	}
+	
+	private boolean checkFileExists(File file) {
+		if(!file.exists()) {
+			throw new IllegalArgumentException("Le fichier n'existe pas: " + file.getPath());
+		}
+		return true;
+	}
+	private boolean checkIsFile(File file) {
+		if(!file.isFile()) {
+			throw new IllegalArgumentException("Le chemin specifie n'est pas un fichier :" + file.getPath());
+		}
+		return true;
+	}
+	private boolean checkIsReadable(File file) {
+	if (!file.canRead ()) {
+	throw new IllegalArgumentException("Le fichier n'est pas lisible: " + file.getPath ());
+	}
+	return true;
+	
+	}
+
+}

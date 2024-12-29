@@ -1,5 +1,9 @@
 package Model;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +16,72 @@ public class EmployeModel {
 	public EmployeModel(EmployeDAOImpl dao) {
 		this.dao = dao;
 	}
+	
+	public List<Employe> importData(String filePath) {
+	    List<Employe> employes = new ArrayList<>();
+	    int failureCount = 0;
+
+	    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+	        String line = reader.readLine(); // Lire la ligne d'en-tête
+
+	        while ((line = reader.readLine()) != null) {
+	            String[] data = line.split(",");
+	            if (data.length != 7) { // Vérifie qu'il y a bien 7 colonnes
+	                System.err.println("Erreur : Nombre de colonnes invalide dans la ligne : " + line);
+	                failureCount++;
+	                continue;
+	            }
+
+	            try {
+	                // Lecture des données
+	                String nom = data[0].trim();
+	                String prenom = data[1].trim();
+	                String email = data[2].trim();
+	                String telephone = data[3].trim();
+	                double salaire = Double.parseDouble(data[4].trim());
+	                Rol role = Rol.valueOf(data[5].trim().toUpperCase());
+	                Poste poste = Poste.valueOf(data[6].trim().toUpperCase());
+
+	                // Validation des données
+	                if (email == null || !(email.contains("@"))) {
+	                    System.err.println("Erreur : email invalide dans la ligne : " + line);
+	                    failureCount++;
+	                    continue;
+	                }
+	                if (telephone.length() != 10) {
+	                    System.err.println("Erreur : numéro de téléphone invalide dans la ligne : " + line);
+	                    failureCount++;
+	                    continue;
+	                }
+	                if (salaire < 0) {
+	                    System.err.println("Erreur : salaire négatif dans la ligne : " + line);
+	                    failureCount++;
+	                    continue;
+	                }
+
+	                // Créer un objet Employe valide
+	                Employe employe = new Employe(0, nom, prenom, email, telephone, salaire, role, poste);
+	                employes.add(employe);
+
+	            } catch (Exception e) {
+	                System.err.println("Erreur lors du traitement de la ligne : " + line);
+	                e.printStackTrace();
+	                failureCount++;
+	            }
+	        }
+
+	        System.out.println("Importation terminée !");
+	        System.out.println("Employés valides : " + employes.size());
+	        System.out.println("Employés échoués : " + failureCount);
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+
+	    return employes;
+	}
+
+
 	
 	public boolean add(String nom, String prenom, String email, String telephone, double salaire, Rol role, Poste poste) {
 		if(salaire <0){

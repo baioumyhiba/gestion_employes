@@ -16,7 +16,8 @@ import Model.EmployeModel;
 import Model.HolidayType;
 
 public class MainView extends JFrame {
-    private JTabbedPane tabbedPane;
+    private JTabbedPane tabbedPane1;
+    private JTabbedPane tabbedPane2;
 
     // Employee form components
     public JTextField saisie = new JTextField(20);
@@ -34,8 +35,6 @@ public class MainView extends JFrame {
     public JComboBox<String> choixEmploye = new JComboBox<>(); 
     
     public JTextField saisie1Holiday = new JTextField(20);
-    public JTextField saisie2Holiday = new JTextField(20);
-    public JTextField saisie3Holiday = new JTextField(20);
     public JComboBox<HolidayType> choixHoliday = new JComboBox<>(HolidayType.values());
 
     // Buttons for both Employee and Holiday
@@ -49,10 +48,17 @@ public class MainView extends JFrame {
     public JButton afficherH = new JButton("Afficher");
     public JButton modifierH = new JButton("Modifier");
     
+    public JButton importer = new JButton("Importer");
+    public JButton exporter = new JButton("Exporter");
+    
     // Table components
-    public JTable table;
-    public DefaultTableModel model;
-    public JScrollPane scrollPane;
+    public JTable table1;
+    public DefaultTableModel model1;
+    public JScrollPane scrollPane1;
+    
+    public JTable table2;
+    public DefaultTableModel model2;
+    public JScrollPane scrollPane2;
 
     public MainView() {
         // Configuration of the main window
@@ -62,17 +68,17 @@ public class MainView extends JFrame {
         setLocationRelativeTo(null);
 
         // Create JTabbedPane for switching between sections
-        tabbedPane = new JTabbedPane();
+        tabbedPane1 = new JTabbedPane();
 
         // Create panels for Employee and Holiday management
         JPanel employePanel = createEmployeePanel();
         JPanel holidayPanel = createHolidayPanel();
         // Add panels to JTabbedPane
-        tabbedPane.addTab("Employés", employePanel);
-        tabbedPane.addTab("Congés", holidayPanel);
+        tabbedPane1.addTab("Employés", employePanel);
+        tabbedPane1.addTab("Congés", holidayPanel);
 
         // Add the JTabbedPane to the main frame
-        add(tabbedPane, BorderLayout.CENTER);
+        add(tabbedPane1, BorderLayout.CENTER);
         getNom();
         setVisible(true);
     }
@@ -109,17 +115,19 @@ public class MainView extends JFrame {
         pan4.add(supprimerE);
         pan4.add(afficherE);
         pan4.add(modifierE);
+        pan4.add(importer);
+        pan4.add(exporter);
 
         // Table panel
         String[] columnNames = { "Id", "Nom", "Prenom", "Téléphone", "Email", "Salaire", "Role", "Poste" };
-        model = new DefaultTableModel(columnNames, 0);
-        table = new JTable(model);
-        scrollPane = new JScrollPane(table);
+        model1 = new DefaultTableModel(columnNames, 0);
+        table1 = new JTable(model1);
+        scrollPane1 = new JScrollPane(table1);
 
         // Combine everything into the employee panel
         panel.add(pan2, BorderLayout.NORTH);
         panel.add(pan4, BorderLayout.SOUTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(scrollPane1, BorderLayout.CENTER);
 
         return panel;
     }
@@ -131,8 +139,8 @@ public class MainView extends JFrame {
     public JTextField getSalary() { return saisie4; }
     public JComboBox<Rol> getRoles() { return choix; }
     public JComboBox<Poste> getPostes() { return choix2; }
-    public JTable getTable() { return table; }
-    public DefaultTableModel getModel() { return model; }
+    public JTable getTable() { return table1; }
+    public DefaultTableModel getModel() { return model1; }
     public JButton getAddButton() { return ajouterE; }
     public JButton getUpdateButton() { return modifierE; }
     public JButton getDeleteButton() { return supprimerE; }
@@ -152,9 +160,9 @@ public class MainView extends JFrame {
         pan2.add(new JLabel("Type de congé"));
         pan2.add(choixHoliday);
         pan2.add(new JLabel("Date de début :"));
-        pan2.add(saisie2Holiday);
+        pan2.add(dateD);
         pan2.add(new JLabel("Date de fin :"));
-        pan2.add(saisie3Holiday);
+        pan2.add(dateF);
 
         // Button panel
         JPanel pan4 = new JPanel();
@@ -166,14 +174,14 @@ public class MainView extends JFrame {
 
         // Table panel
         String[] columnNames = { "Id", "Employe", "Date Début", "Date Fin", "Type" };
-        model = new DefaultTableModel(columnNames, 0);
-        table = new JTable(model);
-        scrollPane = new JScrollPane(table);
+        model2 = new DefaultTableModel(columnNames, 0);
+        table2 = new JTable(model2);
+        scrollPane2 = new JScrollPane(table2);
 
         // Combine everything into the holiday panel
         panel.add(pan2, BorderLayout.NORTH);
         panel.add(pan4, BorderLayout.SOUTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(scrollPane2, BorderLayout.CENTER);
 
         return panel;
        
@@ -182,15 +190,13 @@ public class MainView extends JFrame {
     public String getNom() {
         return (String) choixEmploye.getSelectedItem();
     }
- 
  public String getDateDebut() {
-	    return saisie1Holiday.getText();
-	}
- 
- public String getDateFin() {
-	 return saisie2Holiday.getText();
+	 return (String) dateD.getSelectedItem();
  }
  
+ public String getDateFin() {
+	 return (String) dateF.getSelectedItem();
+ }
  public String getSelectedHolidayType() {
 	 return choixHoliday.getSelectedItem().toString();
  }
@@ -255,9 +261,9 @@ public class MainView extends JFrame {
 		JOptionPane.showMessageDialog(this, message,"Succes",JOptionPane.INFORMATION_MESSAGE);
 	}
 	 public void updateTable(Object[][] data) {
-	        model.setRowCount(0); 
+	        model2.setRowCount(0); 
 	        for (Object[] row : data) {
-	        	model.addRow(row);
+	        	model2.addRow(row);
 	        }
 	 }
     public static void main(String[] args) {

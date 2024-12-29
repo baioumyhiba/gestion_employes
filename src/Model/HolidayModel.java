@@ -1,5 +1,8 @@
 package Model;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Date;
 import java.util.List;
 import java.sql.SQLException;
@@ -16,6 +19,36 @@ public HolidayModel(HolidayDAOImpl holidaydao) {
 	this.holidaydao = holidaydao;
 }
 
+
+public void exportData(String filePath, List<String> holidays) throws IOException {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+        // Écrire les en-têtes du fichier CSV
+        writer.write("Nom de l'employe, Type, Date de debut, Date de fin");
+        writer.newLine();
+
+        // Export des données des vacances
+        List<Holiday> holidayList = display(); // Méthode qui retourne les objets Holiday sous forme de liste
+        for (Holiday h : holidayList) {
+            StringBuilder line = new StringBuilder();
+            line.append(h.getNom()).append(",") // Nom
+                .append(h.getType()).append(",") // Prenom
+                .append(h.getDateDebut()).append(",") // Email
+                .append(h.getDateFin()).append(",");// Telephone
+                
+
+            // Ajouter les jours fériés, si disponibles
+            if (holidays != null && !holidays.isEmpty()) {
+                line.append(String.join(" | ", holidays)); // Jours fériés séparés par des " | "
+            } else {
+                line.append("N/A"); // Pas de jours fériés
+            }
+
+            // Écrire la ligne dans le fichier
+            writer.write(line.toString());
+            writer.newLine();
+        }
+    }
+}
 
 public boolean add(String nom, String dateDebut, String dateFin, HolidayType type) {
 

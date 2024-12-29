@@ -15,7 +15,7 @@ import View.MainView;
 
 public class Main {
     public static void main(String[] args) {
-        // Initialiser les objets DAO, Model, et Views
+     
         EmployeDAOImpl employeDAO = new EmployeDAOImpl();
         EmployeModel employeModel = new EmployeModel(employeDAO);
 

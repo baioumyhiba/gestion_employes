@@ -65,7 +65,6 @@ public class HolidayController {
 		String nom= view.getNom();
 		String dateD = view.getDateDebut();
 		String dateF= view.getDateFin();
-	//!!//
 		HolidayType type =(HolidayType) view.getTypes().getSelectedItem();
         int solde = view.getSolde();
 		if(nom.isEmpty() || dateD.isEmpty() || dateF.isEmpty() || type == null) {
@@ -106,7 +105,7 @@ public class HolidayController {
 	
 	public void display() {
 		try {
-			view.model.setRowCount(0);
+			view.model2.setRowCount(0);
 			List<Holiday>holiday= model.display();
 			for(Holiday h:holiday) {
 				Object[]row={
@@ -116,7 +115,7 @@ public class HolidayController {
 					h.getDateFin(),
 					h.getType()
 				};
-				view.model.addRow(row);
+				view.model2.addRow(row);
 				view.clearFields();
 			}
 		}catch(Exception e) {
@@ -125,15 +124,16 @@ public class HolidayController {
 	}
 	
 	private void delete() {
-		 view.table.addMouseListener(new MouseAdapter() {
+		 view.table2.addMouseListener(new MouseAdapter() {
 	         @Override
 	         public void mouseClicked(MouseEvent e) {
-	             int row = view.table.getSelectedRow();
+	             int row = view.table2.getSelectedRow();
 	             if (row != -1) {
-	                 int Id = (int) view.model.getValueAt(row, 0); 
-	                 String nom = (String) view.model.getValueAt(row, 1);
-	                 String dateDebut = (String) view.model.getValueAt(row, 2);
-	                 String dateFin = (String) view.model.getValueAt(row, 3);
+	                 int Id = (int) view.model2.getValueAt(row, 0); 
+	                 String nom = (String) view.model2.getValueAt(row, 1);
+	           
+	                 String dateDebut = (String) view.model2.getValueAt(row, 2);
+	                 String dateFin = (String) view.model2.getValueAt(row, 3);
 	                 LocalDate debut = LocalDate.parse(dateDebut);
 	                 LocalDate fin = LocalDate.parse(dateFin);
 	                 int solde= (int) ChronoUnit.DAYS.between(debut, fin);
@@ -145,7 +145,7 @@ public class HolidayController {
 	                     boolean success = model.delete(Id);
 	                     model.updateSolde(nom,model.getSolde(nom)+solde);
 	                     if(success) {
-	                    	    view.model.removeRow(row);
+	                    	    view.model2.removeRow(row);
 	                            view.afficherMessageSuccess("congé supprimer avec succès.");
 	                     }else {
 	                    	 view.afficherMessageError("Erreur lors de la suppression");
@@ -156,7 +156,7 @@ public class HolidayController {
 	 }
 	
 	private void update() {
-		 view.table.addMouseListener(new MouseAdapter() {
+		 view.table2.addMouseListener(new MouseAdapter() {
 	         @Override
 	         public void mouseClicked(MouseEvent e) {
 	        	 String nom= view.getNom();
@@ -168,12 +168,12 @@ public class HolidayController {
 	     			view.afficherMessageError("Tous les champs doivent être remplis.");
 	     			return;
 	     		}
-	        	   int row = view.table.getSelectedRow(); 
+	        	   int row = view.table2.getSelectedRow(); 
 	               if (row != -1) { 
-	                   int id = (int) view.model.getValueAt(row, 0); 
-	                   String nomT = (String) view.model.getValueAt(row, 1);
-		                 String dateDebutT = (String) view.model.getValueAt(row, 2);
-		                 String dateFinT = (String) view.model.getValueAt(row, 3);
+	                   int id = (int) view.model2.getValueAt(row, 0); 
+	                   String nomT = (String) view.model2.getValueAt(row, 1);
+		                 String dateDebutT = (String) view.model2.getValueAt(row, 2);
+		                 String dateFinT = (String) view.model2.getValueAt(row, 3);
 		                 LocalDate debut = LocalDate.parse(dateDebutT);
 		                 LocalDate fin = LocalDate.parse(dateFinT);
 		                 int soldeT= (int) ChronoUnit.DAYS.between(debut, fin);
